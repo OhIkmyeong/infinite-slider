@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>무한 슬라이더</title>
+    <link rel="stylesheet" type="text/css" href="./css/reset.css">
+    <link rel="stylesheet" type="text/css" href="./css/infinite-slider.css">
+    <script src="js/main.js" type="module"></script>
+</head>
+<body>
+    <template>
+        <div class="infinite-slider-wrap">
+            <ul class="infinite-slider">
+                <li data-slider-item="0" style="--bg-color:salmon">1</li>
+                <li data-slider-item="1" style="--bg-color:orange">2</li>
+                <li data-slider-item="2" style="--bg-color:yellow">3</li>
+                <li data-slider-item="3" style="--bg-color:green">4</li>
+                <li data-slider-item="4" style="--bg-color:purple">5</li>
+            </ul><!-- infinite-slider -->
+    
+            <div class="infinite-slider-pager">
+                <button class="on" title="1"></button>
+                <button title="2"></button>
+                <button title="3"></button>
+                <button title="4"></button>
+                <button title="5"></button>
+            </div>
+    
+            <button class="infinite-slider-btn-prev" title="이전"></button>
+            <button class="infinite-slider-btn-next" title="다음"></button>
+        </div>
+    </template>
+
+
+    <h1>Infinite Slider</h1>
+    <ul class="infinite-slider" id="slider-test">
+        <li style="--bg-color:salmon">0</li>
+        <li style="--bg-color:orange">1</li>
+        <li style="--bg-color:yellow">2</li>
+        <li style="--bg-color:royalblue">3</li>
+        <li style="--bg-color:purple">4</li>
+    </ul>
+    <h6>Thank you!</h6>
+</body>
+</html>

@@ -1,5 +1,4 @@
 @charset "utf-8";
-
 .infinite-slider-wrap{
     position:relative; overflow:hidden;
     width:100%; max-width:100vw; aspect-ratio:3/1;
@@ -7,12 +6,17 @@
 }
 
 .infinite-slider{
+    --gap:5vmin;
     display:flex;flex-flow:row nowrap;
-    gap:40px;
+    gap:var(--gap);
     position:relative;
     height:100%;
-    transform:translateX(calc(-80vw - 40px + 10vw));
+    transition:transform .3s .1s;
 }
+
+    .infinite-slider.off-transition{
+        transition:none;
+    }
 
 /* 아이템 */
 .infinite-slider > li{
@@ -20,14 +24,18 @@
     display:flex;
     justify-content:center;align-items:center;
     position:relative;
-    width:80vw;height:100%;
+    height:100%; aspect-ratio:2.5/1;
     background-color:var(--bg-color);
     font-size:10vmax;
     opacity:.3;
+    transition:opacity .2s linear, boxShadow .2s .4s linear;
 }
 
-    /* on */
-    .infinite-slider > li.on{opacity:1;}
+    /* li.on */
+    .infinite-slider > li.on{
+        opacity:1;
+        box-shadow:0 0 5rem var(--bg-color);
+    }
 
 /* 페이저 */
 .infinite-slider-pager{

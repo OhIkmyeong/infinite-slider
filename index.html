@@ -10,7 +10,19 @@
     <script src="js/main.js" type="module"></script>
 </head>
 <body>
+    <h1>Infinite Slider</h1>
+    <ul class="infinite-slider" id="slider-test">
+        <li style="--bg-color:salmon">0</li>
+        <li style="--bg-color:orange">1</li>
+        <li style="--bg-color:gold">2</li>
+        <li style="--bg-color:royalblue">3</li>
+        <li style="--bg-color:violet">4</li>
+        <li style="--bg-color:tomato">5</li>
+    </ul>
+    <h6>Thank you!</h6>
+
     <template>
+        위의 아이템이 다음과 같이 변합니다.
         <div class="infinite-slider-wrap">
             <ul class="infinite-slider">
                 <li data-slider-item="0" style="--bg-color:salmon">1</li>
@@ -32,17 +44,5 @@
             <button class="infinite-slider-btn-next" title="다음"></button>
         </div>
     </template>
-
-
-    <h1>Infinite Slider</h1>
-    <ul class="infinite-slider" id="slider-test">
-        <li style="--bg-color:salmon">0</li>
-        <li style="--bg-color:orange">1</li>
-        <li style="--bg-color:gold">2</li>
-        <li style="--bg-color:royalblue">3</li>
-        <li style="--bg-color:violet">4</li>
-        <li style="--bg-color:tomato">5</li>
-    </ul>
-    <h6>Thank you!</h6>
 </body>
 </html>

@@ -16,25 +16,32 @@ export class InfiniteSlider{
             sibHalf : null,
             per : null,
         };
+        this.POS = {
+            start : null,
+            end : null
+        }
         this.init();
     }//constructor
 
+    /* [init] */
     init(){
-        this.add_wrap();
+        this.make_wrap();
         this.numbering_items();
         this.append_last_item_to_first();
         this.append_first_item_to_last()
-        this.add_on_item();
-        this.add_pager();
+        this.add_on_item_by_pager();
+        this.make_pager();
         this.add_on_pager();
-        this.add_btn_prev_next();
+        this.make_btn_prev_next();
         this.cacul_size();
 
-        this.move_slider_control();
+        this.move_slider_by_pager();
 
-        //📌이벤트 추가
+        //📌📌이벤트 추가
+        /* 📌 resize */
         window.addEventListener('resize',this.cacul_size);
 
+        /* 📌 pager */
         this.$pager.addEventListener('click',e=>{
             const $btn = e.target;
             if($btn.tagName != "BUTTON") return;
@@ -46,28 +53,60 @@ export class InfiniteSlider{
             this.add_on_pager();
 
             //slider 움직이기
-            this.move_slider_control();
+            this.move_slider_by_pager();
 
             //item.on 달기
-            this.add_on_item();
+            this.add_on_item_by_pager();
         });
 
+        /* 📌 prev, next 버튼에 이벤트 달기 */
         this.$btnPrev.addEventListener('click',()=>{
-
+            this.move_general("prev");
+        });
+        
+        this.$btnNext.addEventListener('click',()=>{
+            this.move_general("next");
         });
 
-        this.$btnNext.addEventListener('click',()=>{
-            this.IDX_PREV = this.IDX;
-            this.IDX++;
-            //이상하다
-            if(this.IDX > this.LEN - 1){this.IDX = 0;}
-            this.move_slider_control();
-            this.add_on_pager();
+        /* 📌 드래그에 이벤트 달기 */
+        this.add_mouse_down();
+
+        /* 📌 touch에 이벤트 달기 */
+        this.$slider.addEventListener('touchstart',(e)=>{
+            this.POS.start = e.changedTouches[0].clientX;
+        });
+
+        this.$slider.addEventListener('touchend',(e)=>{
+            this.POS.end = e.changedTouches[0].clientX;
+            const moveAmount = Math.abs(this.POS.end - this.POS.start);
+            const winWidPer = window.innerWidth / 10;
+
+            if(moveAmount > winWidPer){
+                const direction = this.POS.start > this.POS.end ? "next" : "prev";
+                this.move_general(direction);
+            }
         });
     }//init
 
+    /** 
+     * prev,next,드래그,터치에 의한 변화 공통 
+     * @param {String}direction "prev"|"next"
+    */
+    move_general(direction){
+        this.IDX_PREV = this.IDX;
+        if(direction == "prev"){
+            this.IDX--;
+        }else{
+            this.IDX++;
+        }
+        // console.log("prev",this.IDX_PREV, "curr", this.IDX);
+        this.add_on_pager();
+        this.add_on_item_by_general();
+        this.move_slider_by_general();
+    }//move_general
+
     /** wrap을 추가하여, 그 안에 슬라이더를 넣습니다. */
-    add_wrap(){
+    make_wrap(){
         this.$wrap = document.createElement('DIV');
         this.$wrap.classList.add('infinite-slider-wrap');
 
@@ -77,17 +116,19 @@ export class InfiniteSlider{
         if($after) $sliderParent.insertBefore(this.$wrap,$after);
     
         this.$wrap.appendChild(this.$slider);
-    }//add_wrap
+    }//make_wrap
 
     /** 슬라이더의 아이템들에 넘버링을 추가합니다.. */
     numbering_items(){
         this.LEN = this.$slider.children.length;
         this.$$item = Array.from(this.$slider.children);
-        this.$$item.forEach(($item,idx)=>$item.dataset.sliderItem = idx);
+        this.$$item.forEach(($item,idx)=>{
+            $item.dataset.sliderItem = idx;
+        });
     }//numbering_items
 
     /** 해당 인덱스에 해당하는 아이템에 .on을 붙입니다. */
-    add_on_item(){
+    add_on_item_by_pager(){
         const $on = this.$$item[this.IDX]; 
         this.$$item.forEach($item =>{
             $item.classList.toggle('on', $item == $on);
@@ -117,7 +158,28 @@ export class InfiniteSlider{
             this.$slider.children[1].classList.add('on');
             this.$$item[this.LEN - 1].classList.add('on');
         }
-    }//add_on_item
+    }//add_on_item_by_pager
+
+    /** item에 .on 붙이기(prev,next,드래그,터치) */
+    add_on_item_by_general(){
+        // console.log("prev",this.IDX_PREV, "curr", this.IDX);
+        const $on = this.$$item[this.IDX];
+        if(this.IDX >= this.LEN){
+            const $fakeFirst = this.$slider.children[this.LEN + 2];
+            const $first = this.$$item[0];
+            $fakeFirst.classList.add('on');
+            $first.classList.add('on');
+        }else if(this.IDX < 0){
+            const $fakeLast = this.$slider.children[1];
+            const $last = this.$$item[this.LEN - 1];
+            $fakeLast.classList.add('on');
+            $last.classList.add('on');
+        }else{
+            Array.from(this.$slider.children).forEach($item =>{
+                $item.classList.toggle('on', $item == $on);
+            });
+        }
+    }//add_on_item_by_general
 
     /** 가장 마지막 아이템을 처음으로 붙입니다*/
     append_last_item_to_first(){
@@ -139,7 +201,7 @@ export class InfiniteSlider{
     }//append_first_item_to_last
 
     /** pager를 만들고, 이벤트를 추가합니다 */
-    add_pager(){
+    make_pager(){
         this.$pager = document.createElement('DIV');
         this.$pager.classList.add('infinite-slider-pager');
 
@@ -152,7 +214,7 @@ export class InfiniteSlider{
         }   
         this.$pager.appendChild($frag);
         this.$wrap.appendChild(this.$pager);
-    }//add_pager
+    }//make_pager
 
     /**
      * pager에 클래스 on을 답니다.
@@ -173,7 +235,7 @@ export class InfiniteSlider{
     }
 
     /** btn-prev,next를 만들고 이벤트를 추가합니다. */
-    add_btn_prev_next(){
+    make_btn_prev_next(){
         this.$btnPrev = document.createElement('BUTTON');
         this.$btnNext = document.createElement('BUTTON');
 
@@ -185,12 +247,12 @@ export class InfiniteSlider{
 
         this.$wrap.appendChild(this.$btnPrev);
         this.$wrap.appendChild(this.$btnNext);
-    }//add_btn_prev_next
+    }//make_btn_prev_next
 
     /** 
-     * move Slider 총괄
+     * move Slider(페이저) 총괄
      * */
-    move_slider_control(){
+    move_slider_by_pager(){
         // console.log("prev",this.IDX_PREV, "now",this.IDX);
         if(this.IDX == 0 && this.IDX_PREV == this.LEN - 1){
             this.IDX = this.LEN;
@@ -223,8 +285,31 @@ export class InfiniteSlider{
         }else{
             this.move_slider_only();
         }
+    }//move_slider_by_pager
 
-    }//move_slider_control
+    /** prev,next,드래그,터치로 이동할 때 */
+    move_slider_by_general(){
+        this.move_slider_only();
+        if(this.IDX >= this.LEN){
+            this.$slider.addEventListener('transitionend',()=>{
+                this.$slider.classList.add('off-transition');
+                this.IDX = 0;
+                this.move_slider_only();
+                setTimeout(()=>{
+                    this.$slider.classList.remove('off-transition');
+                },10);
+            },{once:true});
+        }else if(this.IDX < 0){
+            this.$slider.addEventListener('transitionend',()=>{
+                this.$slider.classList.add('off-transition');
+                this.IDX = this.LEN - 1;
+                this.move_slider_only();
+                setTimeout(()=>{
+                    this.$slider.classList.remove('off-transition');
+                },10);
+            },{once:true});
+        }
+    }//move_slider_by_general
 
     move_slider_only(){
         this.cacul_size_per_only();
@@ -254,16 +339,40 @@ export class InfiniteSlider{
             },200);
         });
     }
-
+    
     cacul_size = () =>{
         this.SIZE.gap =  window.innerWidth < window.innerHeight ? window.innerWidth / 100 * 5 : window.innerHeight / 100 * 5;
         this.SIZE.wid = this.$slider.children[0].offsetWidth ;
         this.SIZE.widWrap = this.$wrap.offsetWidth;
         this.SIZE.sibHalf = (this.SIZE.widWrap - (this.SIZE.wid + this.SIZE.gap * 2)) / 2;
         this.cacul_size_per_only();
-    }
+    }//cacul_size
 
     cacul_size_per_only(){
         this.SIZE.per = (this.SIZE.wid * (this.IDX + 2)) - this.SIZE.sibHalf + (this.SIZE.gap * (this.IDX + 1));
-    }
+    }//cacul_size_per_only
+
+    add_mouse_down(){
+        this.$slider.addEventListener('mousedown',(e)=>{
+            this.POS.start = e.clientX;
+            this.$slider.style.cursor = 'grabbing';
+            this.add_mouse_up();
+        },{once:true});
+    }//add_mouse_down
+
+    add_mouse_up(){
+        this.$slider.addEventListener('mouseup',(e)=>{
+            this.POS.end = e.clientX;
+            const moveAmount = Math.abs(this.POS.end - this.POS.start);
+            const winWidPer = window.innerWidth / 10;
+
+            if(moveAmount > winWidPer){
+                console.log(moveAmount,winWidPer);
+                const direction = this.POS.start > this.POS.end ? "next" : "prev";
+                this.move_general(direction);
+            }
+            this.$slider.style.cursor = 'grab';
+            this.add_mouse_down();
+        },{once:true});
+    }//add_mouse_up
 }//class-InfiniteSlider

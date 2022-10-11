@@ -11,6 +11,7 @@
     gap:var(--gap);
     position:relative;
     height:100%;
+    cursor:grab;
     transition:transform .3s .1s;
 }
 
@@ -29,6 +30,7 @@
     font-size:10vmax;
     opacity:.3;
     transition:opacity .2s linear, boxShadow .2s .4s linear;
+    user-select:none;
 }
 
     /* li.on */
@@ -37,7 +39,7 @@
         box-shadow:0 0 5rem var(--bg-color);
     }
 
-/* 페이저 */
+/* [페이저] */
 .infinite-slider-pager{
     display:flex;
     gap:15px;
@@ -47,7 +49,7 @@
 }
 
 .infinite-slider-pager button{
-    height:12px; aspect-ratio:8/1;
+    height:16px; width:10vmin;
     background:rgba(255,255,255,.5);
     border:1px solid #00000055;
     border-radius:50px;
